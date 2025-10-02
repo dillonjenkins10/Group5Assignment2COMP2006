@@ -588,7 +588,7 @@ int main() {
 					}
 
 					// Display the random roll numbers
-					cout << "\nYour Random Roll numbers are: " << roll1 << " and " << roll2 << endl;
+					cout << "\nThe computer's rolls are: " << roll1 << " and " << roll2 << endl;
 
 					// Compare user input to random numbers and display win/lose message
 					// If either of the user's numbers match either of the random numbers, they win
