@@ -589,17 +589,11 @@ int main() {
 
 					// Display the random roll numbers
 					cout << "\nThe computer's rolls are: " << roll1 << " and " << roll2 << endl;
-
+					
 					// Compare user input to random numbers and display win/lose message
 					// If either of the user's numbers match either of the random numbers, they win
-					if ((dice1 == roll1) || (dice1 == roll2)) {
-
-						if ((dice2 == roll1) || (dice2 == roll2)) {
-							cout << "You Win!" << endl;
-						} else {
-							cout << "You Lose!" << endl;
-						}
-
+					if (((dice1 == roll1) && (dice2 == roll2)) || ((dice1 == roll2) && (dice2 == roll1))) {
+						cout << "You Win!" << endl;
 					} else {
 						cout << "You Lose!" << endl;
 					}
