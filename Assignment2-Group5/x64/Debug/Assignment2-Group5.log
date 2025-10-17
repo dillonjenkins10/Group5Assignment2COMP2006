@@ -1,4 +1,4 @@
 ﻿  Main.cpp
-C:\Georgian College\Semester 4\COMP2006\Assignment2\Assignment2-Group5\Assignment2-Group5\Main.cpp(68,22): warning C4244: 'initializing': conversion from 'time_t' to 'int', possible loss of data
-C:\Georgian College\Semester 4\COMP2006\Assignment2\Assignment2-Group5\Assignment2-Group5\Main.cpp(23,6): warning C4101: 'numberInputChoice': unreferenced local variable
+C:\Georgian College\Semester 4\COMP2006\Assignment2\Assignment2-Group5\Assignment2-Group5\Main.cpp(67,22): warning C4244: 'initializing': conversion from 'time_t' to 'int', possible loss of data
+C:\Georgian College\Semester 4\COMP2006\Assignment2\Assignment2-Group5\Assignment2-Group5\Main.cpp(22,6): warning C4101: 'numberInputChoice': unreferenced local variable
   Assignment2-Group5.vcxproj -> C:\Georgian College\Semester 4\COMP2006\Assignment2\Assignment2-Group5\x64\Debug\Assignment2-Group5.exe

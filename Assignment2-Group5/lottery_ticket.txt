@@ -1,20 +1,18 @@
 ================Lotto 6/49 Ticket================
 
-                          TIME
-
 Dillon Jenkins, here is your lottery ticket.
 
 ===============Your Picked Numbers===============
      1      2      3      4      5      6 
 
 ===================Bonus Line====================
-     2     34     31     49     30     25 
+    48      9     31     38     21     43 
 
 =================Winning Numbers=================
-   21    31    19    17     9    18    36 
+   34    32    33    16    10    20    17 
 
 =====================Results=====================
 Your line: 0 matches - Too bad! Better luck next time.
-Bonus line: 1 matches - Too bad! Better luck next time.
+Bonus line: 0 matches - Too bad! Better luck next time.
 
 See you next time!
