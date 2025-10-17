@@ -1,7 +1,10 @@
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <fstream>
+#include <vector>
 
 using namespace std;
 
@@ -17,23 +20,26 @@ int main() {
 	//Variables for lottery game
 	// choice between entering their own numbers and having their numbers generated
 	int numberInputChoice;
-	//user numbers
-	int userNum1;
-	int userNum2;
-	int userNum3;
-	int userNum4;
-	int userNum5;
-	int userNum6;
-	int userBonusNum;
+	//DJ: int for the amount of money the user has
+	int userBalance = 100;
 
-	//need to initialize these to get rid of errors
-	int number1 = 49;
-	int number2 = 48;
-	int number3 = 47;
-	int number4 = 46;
-	int number5 = 45;
-	int number6 = 44;
-	int bonusNumber = 43;
+	// AD: Initialize a vector that holds 6 elements that are integers
+	vector <int> userLotteryNumbers(6);
+	vector <int> bonusLotteryNumbers(6);
+	vector <int> winningLotteryNumbers(7);
+	// AD: Initialize a variable to hold an integer and push to a vector
+	int userLotteryNumber;
+	int randomBonusNumber;
+	int winningLotteryNumber;
+
+	bool duplicateLotteryNumber = false;
+
+	//DJ: Strings for lottery result messages
+	string userLineMsg;
+	string bonusLineMsg;
+
+	//DJ: variables for generating a file
+	ofstream output_file;
 	
 	int matches = 0;
 	bool validChoice = false;
@@ -111,7 +117,7 @@ int main() {
 
 	while (!menu) {
 		cout << "-----Game Menu-----\n"
-			<< "1. Lottery Game\n"
+			<< "1. Lottery Game ($5 per play)\n"
 			<< "2. Dice Game\n"
 			<< "3. Guessing Game\n"
 			<< "4. Exit\n\n";
@@ -138,382 +144,281 @@ int main() {
 				//The games will be in while loops so the user doesn't exit to the main menu after every
 				//play
 
+				//if the user doesn't have enough money, they cant play
+				if (userBalance < 5) {
+					playAgain = false;
+					cout << "Sorry, " << playerFullName << ", you cant afford to play.\n";
+					cout << "Balance: $" << userBalance << "\n\n";
+				}
+
 				while (playAgain) {
+					//DJ: subtract 5 from the userBalance and tell the user how much they have
+					userBalance -= 5;
+					cout << "Hello, " << playerFullName << "! You currently have $" << userBalance << ".\n\n";
 
-					//ask the user if they would like to input numbers or have them be randomly generated
-					while (!validChoice) {
-						cout << playerFullName <<", would you like to:\n1. Enter the numbers manually\n2. Have the numbers be randomly generated\nPlease type 1 or 2: ";
-						cin >> numberInputChoice;
+					// AD: Clear the vector before entering the while loop so we dont save data from previous games
+					userLotteryNumbers.clear();
+					bonusLotteryNumbers.clear();
+					winningLotteryNumbers.clear();
 
-						//validate their input
-						if (numberInputChoice == 1 || numberInputChoice == 2) {
-							validChoice = true;
+					// AD: Nested for loop to ask for user input 6 times
+					for (int i = 1; i <= 6; i++) {
+						cout << "Enter your number: ";
+						cin >> userLotteryNumber;
+
+						// AD: Check if the user's input is a valid number
+						if (userLotteryNumber < 1 || userLotteryNumber > 49) {
+							cout << "Invalid number. Please pick a number between 1 and 49" << endl;
+
+							// AD: Decrement the iteration if its invalid to restart that iteration
+							i--;
+							// AD: Continue will skip the rest of the loop and bring us back to the top, we need to remove 1 iteration from i or else we will not retrieve all 6 inputs
+							continue;
 						}
-						else {
-							cout << "\nInvalid input. Please type 1 or 2.\n\n";
+						// AD: Initialize the duplicate flag inside the loop, it will clear itself after each game
+						duplicateLotteryNumber = false;
+
+						// AD: Use j as another iterator for this nested for loop so that we can try to find if a same number already exists within the vector
+						for (int j = 0; j < userLotteryNumbers.size(); j++) {
+							if (userLotteryNumbers[j] == userLotteryNumber) {
+
+								duplicateLotteryNumber = true;
+								// AD: Break out of the nested loop 
+								break;
+							}
 						}
-					}
-					//reset validChoice
-					validChoice = false;
 
-					/*****MESSY CODE INCOMING*****/
+						if (duplicateLotteryNumber == true) {
+							cout << "You have already entered that number." << endl;
+							i--;
+							continue;
+						}
 
-					//switch case based on what the user picked
-					switch (numberInputChoice) {
-						case 1: //user enters their own numbers
-							//Code for validation is going to be long and ugly without arrays and functions.
-							//every validation is going to get longer and the code will be mostly reused in case 2.
-							while (!validChoice) {
-								//get user num then make sure its between 1 and 49
-								cout << "Enter your first number: ";
-								cin >> userNum1;
-								if (userNum1 >= 1 && userNum1 <= 49) {
-									validChoice = true;
-								}
-								else {
-									cout << "Number must be between 1 and 49.\n";
-								}
-							}
-							//reset validChoice
-							validChoice = false;
+						userLotteryNumbers.push_back(userLotteryNumber);
 
-							//next number
-							while (!validChoice) {
-								//get user num then make sure its between 1 and 49
-								cout << "Enter your second number: ";
-								cin >> userNum2;
-								//add that the number cant be equal to the last number to the conditional statement
-								if (userNum2 >= 1 && userNum2 <= 49 && userNum2 != userNum1) {
-									validChoice = true;
-								}
-								else {
-									cout << "Number must be between 1 and 49 and must not be equal to previous numbers entered.\n";
-								}
-							}
-							//reset validChoice
-							validChoice = false;
 
-							//next number
-							while (!validChoice) {
-								//get user num then make sure its between 1 and 49
-								cout << "Enter your third number: ";
-								cin >> userNum3;
-								//add that the number cant be equal to the last number to the conditional statement
-								if (userNum3 >= 1 && userNum3 <= 49 && userNum3 != userNum1 && userNum3 != userNum2) {
-									validChoice = true;
-								}
-								else {
-									cout << "Number must be between 1 and 49 and must not be equal to previous numbers entered.\n";
-								}
-							}
-							//reset validChoice
-							validChoice = false;
-
-							//next number
-							while (!validChoice) {
-								//get user num then make sure its between 1 and 49
-								cout << "Enter your fourth number: ";
-								cin >> userNum4;
-								//add that the number cant be equal to the last number to the conditional statement
-								if (userNum4 >= 1 && userNum4 <= 49 && userNum4 != userNum1 && userNum4 != userNum2 && userNum4 != userNum3) {
-									validChoice = true;
-								}
-								else {
-									cout << "Number must be between 1 and 49 and must not be equal to previous numbers entered.\n";
-								}
-							}
-							//reset validChoice
-							validChoice = false;
-
-							//next number
-							while (!validChoice) {
-								//get user num then make sure its between 1 and 49
-								cout << "Enter your fifth number: ";
-								cin >> userNum5;
-								//add that the number cant be equal to the last number to the conditional statement
-								if (userNum5 >= 1 && userNum5 <= 49 && userNum5 != userNum1 && userNum5 != userNum2 && userNum5 != userNum3 && userNum5 != userNum4) {
-									validChoice = true;
-								}
-								else {
-									cout << "Number must be between 1 and 49 and must not be equal to previous numbers entered.\n";
-								}
-							}
-							//reset validChoice
-							validChoice = false;
-
-							//next number
-							while (!validChoice) {
-								//get user num then make sure its between 1 and 49
-								cout << "Enter your sixth number: ";
-								cin >> userNum6;
-								//add that the number cant be equal to the last number to the conditional statement
-								if (userNum6 >= 1 && userNum6 <= 49 && userNum6 != userNum1 && userNum6 != userNum2 && userNum6 != userNum3 && userNum6 != userNum4 && userNum6 != userNum5) {
-									validChoice = true;
-								}
-								else {
-									cout << "Number must be between 1 and 49 and must not be equal to previous numbers entered.\n";
-								}
-							}
-							//reset validChoice
-							validChoice = false;
-
-							//next number
-							while (!validChoice) {
-								//get user num then make sure its between 1 and 49
-								cout << "Enter your bonus number: ";
-								cin >> userBonusNum;
-								//add that the number cant be equal to the last number to the conditional statement
-								if (userBonusNum >= 1 && userBonusNum <= 49 && userBonusNum != userNum1 && userBonusNum != userNum2 && userBonusNum != userNum3 && userBonusNum != userNum4 && userBonusNum != userNum5 && userBonusNum != userNum6) {
-									validChoice = true;
-								}
-								else {
-									cout << "Number must be between 1 and 49 and must not be equal to previous numbers entered.\n";
-								}
-							}
-							//reset validChoice
-							validChoice = false;
-							break;
-
-						case 2: //computer generated numbers
-							//this time we don't have to ask the user and validate input, we just have to make sure the numbers
-							//aren't equal to previous numbers.
-							
-							//first number doesn't need validation
-							userNum1 = rand() % 49 + 1;
-
-							//second number on will need validation to make sure its no the same number as a previous one
-							while (!validChoice) {
-								userNum2 = rand() % 49 + 1;
-								if (userNum2 != userNum1) {
-									validChoice = true;
-								} //no else statement with an error message is needed as the computer will keep running the loop until the 
-								//conditions of this if statement are met
-							}
-							//reset validChoice
-							validChoice = false;
-
-							//third number
-							while (!validChoice) {
-								userNum3 = rand() % 49 + 1;
-								if (userNum3 != userNum1 && userNum3 != userNum2) {
-									validChoice = true;
-								}
-							}
-							//reset validChoice
-							validChoice = false;
-
-							//fourth number
-							while (!validChoice) {
-								userNum4 = rand() % 49 + 1;
-								if (userNum4 != userNum1 && userNum4 != userNum2 && userNum4 != userNum3) {
-									validChoice = true;
-								}
-							}
-							//reset validChoice
-							validChoice = false;
-
-							//fifth number
-							while (!validChoice) {
-								userNum5 = rand() % 49 + 1;
-								if (userNum5 != userNum1 && userNum5 != userNum2 && userNum5 != userNum3 && userNum5 != userNum4) {
-									validChoice = true;
-								}
-							}
-							//reset validChoice
-							validChoice = false;
-
-							//sixth number
-							while (!validChoice) {
-								userNum6 = rand() % 49 + 1;
-								if (userNum6 != userNum1 && userNum6 != userNum2 && userNum6 != userNum3 && userNum6 != userNum4 && userNum6 != userNum5) {
-									validChoice = true;
-								}
-							}
-							//reset validChoice
-							validChoice = false;
-
-							//bonus
-							while (!validChoice) {
-								userBonusNum = rand() % 49 + 1;
-								if (userBonusNum != userNum1 && userBonusNum != userNum2 && userBonusNum != userNum3 && userBonusNum != userNum4 && userBonusNum != userNum5 && userBonusNum != userNum6) {
-									validChoice = true;
-								}
-							}
-							//reset validChoice
-							validChoice = false;
-
-							break;
-
-						default:
-							cout << "An error has occured.\n\n";
-
-							//Set default values for the numbers if something goes wrong
-							userNum1 = 1;
-							userNum2 = 2;
-							userNum3 = 3;
-							userNum4 = 4;
-							userNum5 = 5;
-							userNum6 = 6;
-							userBonusNum = 7;
-
-							break;
 					}
 
-					//generate lotto numbers we will be comparing against
-					//we will be reusing the code we created to generate user numbers except we will change the variables
-					number1 = rand() % 49 + 1;
+					// AD: Add Bonus line
+					// AD: Use for loop to generate 6 elements from 1-49
+					for (int i = 0; i < 6; i++) {
+						// AD: Initialize the duplicate flag inside the loop, it will clear itself after each game
+						duplicateLotteryNumber = true;
+						//DJ: here we will check for duplicates in the bonus line
+						while (duplicateLotteryNumber) {
+							//DJ: change duplicate lottery number to false
+							duplicateLotteryNumber = false;
+							//DJ: generate random number
+							randomBonusNumber = rand() % 49 + 1;
+							//DJ: loop through bonus number list to see if there are dupliates
+							for (int j = 0; j < bonusLotteryNumbers.size(); j++) {
+								//DJ: if we fine a duplicate, set the variable to true, this will cause the while loop to go one more time
+								//until a non duplicate number is generated
+								if (randomBonusNumber == bonusLotteryNumbers[j]) {
+									duplicateLotteryNumber = true;
+								}
+							}
+						}
+						bonusLotteryNumbers.push_back(randomBonusNumber);
+					}
 
-					while (!validChoice) {
-						number2 = rand() % 49 + 1;
-						if (number2 != number1) {
-							validChoice = true;
+					// AD: Generate  6 + 1 random winning numbers
+					for (int i = 0; i < 7; i++) {
+						// AD: Initialize the duplicate flag inside the loop, it will clear itself after each game
+						duplicateLotteryNumber = true;
+						//DJ: here we will check for duplicates in the bonus line
+						while (duplicateLotteryNumber) {
+							//DJ: change duplicate lottery number to false
+							duplicateLotteryNumber = false;
+							//DJ: generate random number
+							winningLotteryNumber = rand() % 49 + 1;
+							//DJ: loop through bonus number list to see if there are dupliates
+							for (int j = 0; j < winningLotteryNumbers.size(); j++) {
+								//DJ: if we fine a duplicate, set the variable to true, this will cause the while loop to go one more time
+								//until a non duplicate number is generated
+								if (winningLotteryNumber == winningLotteryNumbers[j]) {
+									duplicateLotteryNumber = true;
+								}
+							}
+						}
+						winningLotteryNumbers.push_back(winningLotteryNumber);
+					}
+
+					// AD: Compare user numbers to winning numbers
+					int userMatchCount = 0;
+					for (int i = 0; i < winningLotteryNumbers.size(); i++) {
+
+						for (int j = 0; j < userLotteryNumbers.size(); j++) {
+
+							if (winningLotteryNumbers[i] == userLotteryNumbers[j]) {
+								userMatchCount++;
+							}
+
 						}
 					}
-					//reset validChoice
-					validChoice = false;
 
-					//third number
-					while (!validChoice) {
-						number3 = rand() % 49 + 1;
-						if (number3 != number1 && number3 != number2) {
-							validChoice = true;
+					// AD: Compare bonus numbers to winning numbers
+					int bonusMatchCount = 0;
+					for (int i = 0; i < winningLotteryNumbers.size(); i++) {
+
+						for (int j = 0; j < bonusLotteryNumbers.size(); j++) {
+
+							if (winningLotteryNumbers[i] == bonusLotteryNumbers[j]) {
+								bonusMatchCount++;
+							}
+
 						}
 					}
-					//reset validChoice
-					validChoice = false;
+					// AD: Add spacing to text
+					cout << endl << endl;
 
-					//fourth number
-					while (!validChoice) {
-						number4 = rand() % 49 + 1;
-						if (number4 != number1 && number4 != number2 && number4 != number3) {
-							validChoice = true;
-						}
+					//DJ: determine the message to display based on the number of matches
+					//also add the money to user balance
+					if (userMatchCount < 3) {
+						userLineMsg =  "Too bad! Better luck next time.";
 					}
-					//reset validChoice
-					validChoice = false;
-
-					//fifth number
-					while (!validChoice) {
-						number5 = rand() % 49 + 1;
-						if (number5 != number1 && number5 != number2 && number5 != number3 && number5 != number4) {
-							validChoice = true;
-						}
-					}
-					//reset validChoice
-					validChoice = false;
-
-					//sixth number
-					while (!validChoice) {
-						number6 = rand() % 49 + 1;
-						if (number6 != number1 && number6 != number2 && number6 != number3 && number6 != number4 && number6 != number5) {
-							validChoice = true;
-						}
-					}
-					//reset validChoice
-					validChoice = false;
-
-					//bonus
-					while (!validChoice) {
-						bonusNumber = rand() % 49 + 1;
-						if (bonusNumber != userNum1 && bonusNumber != userNum2 && bonusNumber != userNum3 && bonusNumber != userNum4 && bonusNumber != userNum5 && bonusNumber != userNum6) {
-							validChoice = true;
-						}
-					}
-					//reset validChoice
-					validChoice = false;
-
-					//print out the numbers
-					cout << playerFullName << ", Here are your numbers." << endl << endl
-						<< userNum1 << " "
-						<< userNum2 << " "
-						<< userNum3 << " "
-						<< userNum4 << " "
-						<< userNum5 << " "
-						<< userNum6 << " "
-						<< "Bonus Number: " << userBonusNum << endl << endl;
-
-					cout << "Here are the computer's numbers." << endl << endl
-						<< number1 << " "
-						<< number2 << " "
-						<< number3 << " "
-						<< number4 << " "
-						<< number5 << " "
-						<< number6 << " "
-						<< "Bonus Number: " << bonusNumber << endl << endl;
-
-					//find the number of matches (this will also be ugly)
-					if (userNum1 == number1 || userNum1 == number2 || userNum1 == number3 || userNum1 == number4 || userNum1 == number5 || userNum1 == number6 || userNum1 == bonusNumber) {
-						matches++;
-					} //this if statement will be copy pasted, replacing userNum1 with the next number up to bonus num
-
-					if (userNum2 == number1 || userNum2 == number2 || userNum2 == number3 || userNum2 == number4 || userNum2 == number5 || userNum2 == number6 || userNum2 == bonusNumber) {
-						matches++;
-					}
-
-					if (userNum3 == number1 || userNum3 == number2 || userNum3 == number3 || userNum3 == number4 || userNum3 == number5 || userNum3 == number6 || userNum3 == bonusNumber) {
-						matches++;
-					}
-
-					if (userNum4 == number1 || userNum4 == number2 || userNum4 == number3 || userNum4 == number4 || userNum4 == number5 || userNum4 == number6 || userNum4 == bonusNumber) {
-						matches++;
-					}
-
-					if (userNum5 == number1 || userNum5 == number2 || userNum5 == number3 || userNum5 == number4 || userNum5 == number5 || userNum5 == number6 || userNum5 == bonusNumber) {
-						matches++;
-					}
-
-					if (userNum6 == number1 || userNum6 == number2 || userNum6 == number3 || userNum6 == number4 || userNum6 == number5 || userNum6 == number6 || userNum6 == bonusNumber) {
-						matches++;
-					}
-
-					if (userBonusNum == number1 || userBonusNum == number2 || userBonusNum == number3 || userBonusNum == number4 || userBonusNum == number5 || userBonusNum == number6 || userBonusNum == bonusNumber) {
-						matches++;
-					}
-
-					//print out the number of matches
-					cout << "You got " << matches << " match(es)." << endl;
-
-					//determine the message to be printed out based on the number of matches
-					if (matches == 0) {
-						cout << "Too bad! Better luck next time.\n\n";
-					}
-					else if (matches == 1) {
-						cout << "At least you got one!\n\n";
-					}
-					else if (matches == 2) {
-						cout << "Nice work!\n\n";
-					}
-					else if (matches == 3) {
-						cout << "Very good job!\n\n";
+					else if (userMatchCount == 3) {
+						userLineMsg = "You won $1000!";
+						userBalance += 1000;
 					}
 					else if (matches == 4) {
-						cout << "Over half correct! Great job!\n\n";
+						userLineMsg = "You won $10,000!";
+						userBalance += 10000;
 					}
 					else if (matches == 5) {
-						cout << "Wow! Very impressive!\n\n";
+						userLineMsg = "You won $250,000!";
+						userBalance += 250000;
 					}
 					else if (matches == 6) {
-						cout << "Amazing! Almost perfect!\n\n";
+						userLineMsg = "You won the grand prize of $5,000,000!";
+						userBalance += 5000000;
 					}
-					else if (matches == 7) {
-						cout << "Perfect! You won the lottery!\n\n";
+
+					//DJ: do the same for the bonus line
+					if (bonusMatchCount < 3) {
+						bonusLineMsg = "Too bad! Better luck next time.";
 					}
-					else {
-						cout << "You shouldn't be able to see this.\n\n";
+					else if (bonusMatchCount == 3) {
+						bonusLineMsg = "You won $1000!";
+						userBalance += 1000;
 					}
+					else if (bonusMatchCount == 4) {
+						bonusLineMsg = "You won $10,000!";
+						userBalance += 10000;
+					}
+					else if (bonusMatchCount == 5) {
+						bonusLineMsg = "You won $250,000!";
+						userBalance += 250000;
+					}
+					else if (bonusMatchCount == 6) {
+						bonusLineMsg = "You won the grand prize of $5,000,000!";
+						userBalance += 5000000;
+					}
+
+
+					//DJ: This is where we write the generated numbers to a file
+					output_file.open("lottery_ticket.txt");
+
+					//DJ: Title and date
+					output_file << "================Lotto 6/49 Ticket================\n\n";
+
+					//DJ: mention the name of the player
+					output_file << playerFullName << ", here is your lottery ticket.\n\n";
+
+					//DJ: write the first line of numbers
+					output_file << "===============Your Picked Numbers===============\n";
+					//DJ: Loop through the vector to output numbers
+					for (int i = 0; i < userLotteryNumbers.size(); i++) {
+						output_file << setw(6) << userLotteryNumbers[i] << " ";
+					}
+					//DJ: add some new lines for formatting
+					output_file << "\n\n";
+
+					//DJ: bonus numbers
+					output_file << "===================Bonus Line====================\n";
+					//DJ: Loop through the vector to output numbers
+					for (int i = 0; i < bonusLotteryNumbers.size(); i++) {
+						output_file << setw(6) << bonusLotteryNumbers[i] << " ";
+					}
+					//DJ: add some new lines for formatting
+					output_file << "\n\n";
+
+					//DJ: winning numbers
+					output_file << "=================Winning Numbers=================\n";
+					//DJ: Loop through the vector to output numbers
+					for (int i = 0; i < winningLotteryNumbers.size(); i++) {
+						output_file << setw(5) << winningLotteryNumbers[i] << " ";
+					}
+					//DJ: add some new lines for formatting
+					output_file << "\n\n";
+
+					//DJ: Quick summary of the results
+					output_file << "=====================Results=====================\n";
+					output_file << "Your line: " << userMatchCount << " matches - " << userLineMsg << "\n";
+					output_file << "Bonus line: " << bonusMatchCount << " matches - " << bonusLineMsg << "\n\n";
+					output_file << "See you next time!\n";
+
+					output_file.close();
+
+					//DJ: we also need to print this to the console
+					//DJ: Title and date
+					cout << "================Lotto 6/49 Ticket================\n\n";
+
+					//DJ: mention the name of the player
+					cout << playerFullName << ", here is your lottery ticket.\n\n";
+
+					//DJ: write the first line of numbers
+					cout << "===============Your Picked Numbers===============\n";
+					//DJ: Loop through the vector to output numbers
+					for (int i = 0; i < userLotteryNumbers.size(); i++) {
+						cout << setw(6) << userLotteryNumbers[i] << " ";
+					}
+					//DJ: add some new lines for formatting
+					cout << "\n\n";
+
+					//DJ: bonus numbers
+					cout << "===================Bonus Line====================\n";
+					//DJ: Loop through the vector to output numbers
+					for (int i = 0; i < bonusLotteryNumbers.size(); i++) {
+						cout << setw(6) << bonusLotteryNumbers[i] << " ";
+					}
+					//DJ: add some new lines for formatting
+					cout << "\n\n";
+
+					//DJ: winning numbers
+					cout << "=================Winning Numbers=================\n";
+					//DJ: Loop through the vector to output numbers
+					for (int i = 0; i < winningLotteryNumbers.size(); i++) {
+						cout << setw(5) << winningLotteryNumbers[i] << " ";
+					}
+					//DJ: add some new lines for formatting
+					cout << "\n\n";
+
+					//DJ: Quick summary of the results
+					cout << "=====================Results=====================\n";
+					cout << "Your line: " << userMatchCount << " matches - " << userLineMsg << "\n";
+					cout << "Bonus line: "<< bonusMatchCount << " matches - " << bonusLineMsg << "\n\n";
+					cout << "See you next time!\n";
+
+					//print out the user balance
+					cout << "You have $" << userBalance << ".\n\n";
 
 					//Ask the user if they would like to play again
 					cout << "\nDo you want to play again? (y/n): ";
 					cin >> choice;
+
+					//if the user doesn't have enough money to play again
+					if (userBalance < 5) {
+						playAgain = false;
+						cout << "Sorry, " << playerFullName << ", you cant afford to play again.\n";
+						cout << "Balance: $" << userBalance << "\n\n";
+					}
 
 					if (choice == 'n' || choice == 'N') {
 
 						playAgain = false;
 
 					}
-
-					//reset matches for the next time
-					matches = 0;
 
 					cout << "________________________________________________________________________________________________________________________\n\n";
 				}
